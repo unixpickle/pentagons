@@ -14,8 +14,8 @@ class _FluidPentagon {
   _Pentagon nextFrame() {
     var result = currentAnimation.intermediatePentagon();
     if (currentAnimation.isDone) {
-      currentAnimation = new _Animation(new Random(),
-          currentAnimation.endPentagon, others());
+      var capped = new _Pentagon.capAngle(currentAnimation.endPentagon);
+      currentAnimation = new _Animation(new Random(), capped, others());
     }
     return result;
   }

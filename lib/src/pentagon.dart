@@ -19,9 +19,13 @@ class _Pentagon {
   }
   
   static double closeRotation(Random r, double start) {
-    while (start < 0) start += PI * 2;
-    while (start > PI * 2) start -= PI * 2;
-    return start + (r.nextDouble() - 0.5) * 2;
+    return start + (r.nextDouble() - 0.5) * PI;
+  }
+  
+  static double cappedAngle(double angle) {
+    while (angle < 0) angle += PI * 2;
+    while (angle > PI * 2) angle -= PI * 2;
+    return angle;
   }
   
   /**
@@ -88,6 +92,10 @@ class _Pentagon {
                                        gravityYValue(r, current, others),
                                        closeRotation(r, current.rotation),
                                        randomRadius(r));
+  
+  _Pentagon.capAngle(_Pentagon p)
+      : opacity = p.opacity,
+        positionalSize = p.positionalSize.withZ(cappedAngle(p.rotation));
   
   _Pentagon operator +(_Pentagon p) {
     return new _Pentagon.raw(positionalSize + p.positionalSize,
