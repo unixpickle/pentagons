@@ -1,0 +1,7 @@
+name: pentagons
+version: 1.0.0
+author: Alex Nichol <unixpickle@gmail.com>
+description: Bring your web-app to life with a simple background animation.
+homepage: https://github.com/unixpickle/pentagons
+dev_dependencies:
+  browser: any
