@@ -10,6 +10,10 @@ PentagonInfo.difference = function(info1, info2) {
   return PentagonInfo.sum(info1, info2.scaled(-1));
 };
 
+PentagonInfo.distanceSquared = function(info1, info2) {
+  return Math.pow(info1.x-info2.x, 2) + Math.pow(info1.y-info2.y, 2);
+};
+
 PentagonInfo.sum = function(info1, info2) {
   return new PentagonInfo({
     x: info1.x + info2.x,
@@ -25,6 +29,9 @@ PentagonInfo.prototype.clampedAngle = function() {
   if (rotation < 0) {
     rotation += Math.PI * 2;
   }
+  var result = new PentagonInfo(this);
+  result.rotation = rotation;
+  return result;
 };
 
 PentagonInfo.prototype.scaled = function(scaler) {
