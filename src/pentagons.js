@@ -12,6 +12,8 @@ function Pentagon() {
   this._lastFrame = start;
 }
 
+Pentagon.MAX_RADIUS = 0.2;
+
 Pentagon.allPentagons = [];
 
 Pentagon.prototype.frame = function() {
