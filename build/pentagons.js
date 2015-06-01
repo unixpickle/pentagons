@@ -1,4 +1,4 @@
-// context.js version 0.1.0
+// pentagons version 0.1.0
 //
 // Copyright (c) 2014-2015, Alex Nichol and Jonathan Loeb.
 // All rights reserved.
