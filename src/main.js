@@ -1,4 +1,4 @@
 window.addEventListener('load', function() {
   generatePentagons();
-  new PentagonView();
+  new CanvasImageView();
 });
