@@ -7,7 +7,7 @@ OUTNAME=build/pentagons.js
 VERSION=`cat VERSION`
 LICENSE=`cat LICENSE | sed -e 's/^/\/\/ /g'`
 
-echo "// context.js version $VERSION
+echo "// pentagons version $VERSION
 //
 $LICENSE
 //
