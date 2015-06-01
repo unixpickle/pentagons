@@ -1,5 +1,12 @@
+var ELEMENT_ID = 'pentagon-background'
+
 function PentagonView() {
-  this._element = document.createElement('div');
+  this._element = document.getElementById(ELEMENT_ID);
+  if (!this._element) {
+    this._element = document.createElement('div');
+    this._element.id = ELEMENT_ID;
+  }
+
   this._pentagonElements = [];
   for (var i = 0, len = Pentagon.allPentagons.length; i < len; ++i) {
     var element = document.createElement('img');
@@ -17,19 +24,21 @@ function PentagonView() {
   this._imageCache = {};
   this._updateImage();
 
-  document.body.insertBefore(this._element, document.body.childNodes[0] ||
-    null);
+  if (!this._element.parentNode) {
+    document.body.insertBefore(this._element, document.body.childNodes[0] ||
+      null);
+  }
   window.addEventListener('resize', this._updateAll.bind(this));
   this._requestAnimationFrame();
 }
 
 PentagonView.prototype._computeImageData = function() {
   var imageSize = this._imageSize;
-  
+
   if (this._imageCache.hasOwnProperty('' + imageSize)) {
     return this._imageCache['' + imageSize];
   }
-  
+
   var canvas = document.createElement('canvas');
   canvas.width = imageSize;
   canvas.height = imageSize;
@@ -54,7 +63,7 @@ PentagonView.prototype._computeImageData = function() {
   return imageData;
 };
 
-PentagonView.prototype._layoutPentagons = function() {  
+PentagonView.prototype._layoutPentagons = function() {
   var xOffset = 0;
   var yOffset = 0;
   var size = Math.max(this._width, this._height);
@@ -66,12 +75,12 @@ PentagonView.prototype._layoutPentagons = function() {
   for (var i = 0, len = this._pentagonElements.length; i < len; ++i) {
     var frame = Pentagon.allPentagons[i].frame();
     var element = this._pentagonElements[i];
-    
+
     var translateX = frame.x*size - this._imageSize/2 + xOffset;
     var translateY = frame.y*size - this._imageSize/2 + yOffset;
     var angle = frame.rotation * 180 / Math.PI;
     var scale = 2 * size * frame.radius / this._imageSize;
-    
+
     var transform = 'translate(' + translateX.toPrecision(5) + 'px, ' +
       translateY.toPrecision(5) + 'px) rotate(' + angle.toPrecision(5) +
       'deg) scale(' + scale.toPrecision(5) + ', ' + scale.toPrecision(5) + ')';

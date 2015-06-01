@@ -209,8 +209,15 @@
   function randomRadius() {
     return 0.05 + (Math.pow(Math.random(), 15)+1)*0.075;
   }
+  var ELEMENT_ID = 'pentagon-background'
+
   function PentagonView() {
-    this._element = document.createElement('div');
+    this._element = document.getElementById(ELEMENT_ID);
+    if (!this._element) {
+      this._element = document.createElement('div');
+      this._element.id = ELEMENT_ID;
+    }
+
     this._pentagonElements = [];
     for (var i = 0, len = Pentagon.allPentagons.length; i < len; ++i) {
       var element = document.createElement('img');
@@ -228,8 +235,10 @@
     this._imageCache = {};
     this._updateImage();
 
-    document.body.insertBefore(this._element, document.body.childNodes[0] ||
-      null);
+    if (!this._element.parentNode) {
+      document.body.insertBefore(this._element, document.body.childNodes[0] ||
+        null);
+    }
     window.addEventListener('resize', this._updateAll.bind(this));
     this._requestAnimationFrame();
   }

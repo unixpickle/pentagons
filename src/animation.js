@@ -18,7 +18,7 @@ Animation.prototype.frame = function() {
     this._isDone = true;
     return this._endInfo;
   }
-  
+
   var fraction = this._elapsed() / this._duration;
   if (fraction >= 1) {
     this._isDone = true;
