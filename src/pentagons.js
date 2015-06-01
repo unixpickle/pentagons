@@ -59,10 +59,11 @@ Pentagon.prototype._gravityCoord = function(axis) {
   }
 
   // Add a random component to the force.
-  force += (Math.random - 0.5) * 20;
+  force += (Math.random() - 0.5) * 20;
 
   // Cap the force at +/- 0.2 and add it to the current coordinate.
   force = Math.max(Math.min(force, 100), -100) / 500;
+  
   return Math.max(Math.min(axisCoord+force, 1), 0);
 };
 
@@ -73,7 +74,7 @@ function generatePentagons() {
 }
 
 function randomDuration() {
-  return 30 + 30*Math.random();
+  return 30000 + 30000*Math.random();
 }
 
 function randomOpacity() {

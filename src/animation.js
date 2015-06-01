@@ -24,7 +24,7 @@ Animation.prototype.frame = function() {
     this._isDone = true;
     return this._endInfo;
   }
-  return PentagonInfo.sum(this._startEndDifference.scale(fraction),
+  return PentagonInfo.sum(this._startEndDifference.scaled(fraction),
     this._startInfo);
 };
 

@@ -51,7 +51,7 @@
       this._isDone = true;
       return this._endInfo;
     }
-    return PentagonInfo.sum(this._startEndDifference.scale(fraction),
+    return PentagonInfo.sum(this._startEndDifference.scaled(fraction),
       this._startInfo);
   };
 
@@ -184,10 +184,11 @@
     }
 
     // Add a random component to the force.
-    force += (Math.random - 0.5) * 20;
+    force += (Math.random() - 0.5) * 20;
 
     // Cap the force at +/- 0.2 and add it to the current coordinate.
     force = Math.max(Math.min(force, 100), -100) / 500;
+
     return Math.max(Math.min(axisCoord+force, 1), 0);
   };
 
@@ -198,7 +199,7 @@
   }
 
   function randomDuration() {
-    return 30 + 30*Math.random();
+    return 30000 + 30000*Math.random();
   }
 
   function randomOpacity() {
@@ -217,33 +218,28 @@
       element.style.position = 'fixed';
       element.style.left = 0;
       element.style.top = 0;
+      element.style.opacity = 0;
       this._pentagonElements[i] = element;
       this._element.appendChild(element);
     }
     this._imageSize = 0;
     this._width = window.innerWidth;
     this._height = window.innerHeight;
+    this._imageCache = {};
     this._updateImage();
 
     document.body.insertBefore(this._element, document.body.childNodes[0] ||
       null);
     window.addEventListener('resize', this._updateAll.bind(this));
+    this._requestAnimationFrame();
   }
 
-  PentagonView.prototype._updateAll = function() {
-    this._updateSize();
-    this._updateImage();
-  };
+  PentagonView.prototype._computeImageData = function() {
+    var imageSize = this._imageSize;
 
-  PentagonView.prototype._updateImage = function() {
-    var maxRadius = Math.max(this._width, this._height) * Pentagon.MAX_RADIUS;
-    var maxRadiusLog = Math.ceil(Math.log(maxRadius) / Math.log(2));
-    var imageSize = Math.pow(2, 1+maxRadiusLog);
-
-    if (imageSize === this._imageSize) {
-      return;
+    if (this._imageCache.hasOwnProperty('' + imageSize)) {
+      return this._imageCache['' + imageSize];
     }
-    this._imageSize = imageSize;
 
     var canvas = document.createElement('canvas');
     canvas.width = imageSize;
@@ -265,6 +261,64 @@
     context.fill();
 
     var imageData = canvas.toDataURL('image/png');
+    this._imageCache['' + imageSize] = imageData;
+    return imageData;
+  };
+
+  PentagonView.prototype._layoutPentagons = function() {
+    var xOffset = 0;
+    var yOffset = 0;
+    var size = Math.max(this._width, this._height);
+    if (this._width < this._height) {
+      xOffset = -(this._height - this._width) / 2;
+    } else {
+      yOffset = -(this._width - this._height) / 2;
+    }
+    for (var i = 0, len = this._pentagonElements.length; i < len; ++i) {
+      var frame = Pentagon.allPentagons[i].frame();
+      var element = this._pentagonElements[i];
+
+      var translateX = frame.x*size - this._imageSize/2 + xOffset;
+      var translateY = frame.y*size - this._imageSize/2 + yOffset;
+      var angle = frame.rotation * 180 / Math.PI;
+      var scale = 2 * size * frame.radius / this._imageSize;
+
+      var transform = 'translate(' + translateX.toPrecision(5) + 'px, ' +
+        translateY.toPrecision(5) + 'px) rotate(' + angle.toPrecision(5) +
+        'deg) scale(' + scale.toPrecision(5) + ', ' + scale.toPrecision(5) + ')';
+      element.style.opacity = frame.opacity;
+      element.style.transform = transform;
+      element.style.webkitTransform = transform;
+      element.style.MozTransform = transform;
+      element.style.msTransform = transform;
+    }
+  };
+
+  PentagonView.prototype._requestAnimationFrame = function() {
+    setTimeout(this._tick.bind(this), 1000/24);
+  };
+
+  PentagonView.prototype._tick = function() {
+    this._layoutPentagons();
+    this._requestAnimationFrame();
+  };
+
+  PentagonView.prototype._updateAll = function() {
+    this._updateSize();
+    this._updateImage();
+    this._layoutPentagons();
+  };
+
+  PentagonView.prototype._updateImage = function() {
+    var maxRadius = Math.max(this._width, this._height) * Pentagon.MAX_RADIUS;
+    var maxRadiusLog = Math.ceil(Math.log(maxRadius) / Math.log(2));
+    var imageSize = Math.pow(2, 1+maxRadiusLog);
+    if (imageSize === this._imageSize) {
+      return;
+    }
+    this._imageSize = imageSize;
+
+    var imageData = this._computeImageData();
     for (var i = 0, len = this._pentagonElements.length; i < len; ++i) {
       this._pentagonElements[i].src = imageData;
     }
