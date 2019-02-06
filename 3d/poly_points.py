@@ -49,7 +49,7 @@ def best_init():
     best_verts = None
     best_loss = 1000000
     for _ in range(10):
-        norm = torch.randn(()) * 1.5
+        norm = torch.randn(()) * 0.1 + 1.5
         vertices = torch.randn(20, 3)
         vertices -= torch.sum(vertices, dim=0)
         vertices *= norm / torch.norm(vertices, dim=-1, keepdim=True)
