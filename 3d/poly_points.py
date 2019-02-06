@@ -20,8 +20,10 @@ def dist_loss(v1, v2):
 
 
 def skip_dist_loss(v1, v2):
-    x1, y1 = math.cos(4 * math.pi / 5), math.sin(4 * math.pi / 5)
-    target = math.sqrt(math.pow(x1 - 1, 2) + math.pow(y1, 2))
+    radius = 0.5 / math.sin(math.pi / 5)
+    x = radius * math.cos(4 * math.pi / 5)
+    y = radius * math.sin(4 * math.pi / 5)
+    target = math.sqrt(math.pow(x - radius, 2) + math.pow(y, 2))
     return torch.pow(torch.norm(v1 - v2) - target, 2)
 
 
@@ -30,6 +32,35 @@ def pent_loss(all_vertices, indices):
     losses = [dist_loss(vecs[(i + 1) % 5], vecs[i]) for i in range(5)]
     skip_losses = [skip_dist_loss(vecs[(i + 2) % 5], vecs[i]) for i in range(5)]
     return torch.sum(torch.stack(losses + skip_losses))
+
+
+def optimize(vertices, steps, lr=5e-2):
+    adam = optim.Adam([vertices], lr=lr)
+    for i in range(steps):
+        adam.zero_grad()
+        center_loss = torch.norm(torch.mean(vertices, dim=0))
+        pent_losses = [pent_loss(vertices, inds) for inds in pentagons]
+        loss = center_loss + torch.sum(torch.stack(pent_losses))
+        loss.backward()
+        adam.step()
+
+
+def best_init():
+    best_verts = None
+    best_loss = 1000000
+    for _ in range(10):
+        norm = torch.randn(()) * 1.5
+        vertices = torch.randn(20, 3)
+        vertices -= torch.sum(vertices, dim=0)
+        vertices *= norm / torch.norm(vertices, dim=-1, keepdim=True)
+        vert_param = nn.Parameter(vertices)
+        optimize(vert_param, 50, lr=0.3)
+        pent_losses = [pent_loss(vert_param, inds) for inds in pentagons]
+        loss = torch.sum(torch.stack(pent_losses)).item()
+        if best_verts is None or loss < best_loss:
+            best_loss = loss
+            best_verts = vert_param
+    return best_verts
 
 
 pentagons = [
@@ -50,15 +81,22 @@ pentagons = [
 best_loss = 1000
 
 while True:
-    vertices = nn.Parameter(torch.randn(20, 3))
-    adam = optim.Adam([vertices], lr=1e-2)
-    for i in range(2000):
+    vertices = best_init()
+    adam = optim.Adam([vertices], lr=0.02)
+    last_loss = None
+    for i in range(10000):
         adam.zero_grad()
         center_loss = torch.norm(torch.mean(vertices, dim=0))
         pent_losses = [pent_loss(vertices, inds) for inds in pentagons]
         loss = center_loss + torch.sum(torch.stack(pent_losses))
         loss.backward()
         adam.step()
+        if i == 0:
+            last_loss = loss.item()
+        elif i % 100 == 0:
+            if last_loss < loss.item():
+                break
+            last_loss = loss.item()
     loss = loss.item()
     print('loss: %f' % loss)
     if loss < best_loss:
