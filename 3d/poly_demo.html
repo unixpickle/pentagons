@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Polygon</title>
+    <script src="three.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      const material = new THREE.MeshPhongMaterial({
+        color: 0x66ccff,
+        side: THREE.DoubleSide,
+        flatShading: true,
+      });
+      const geometry = new THREE.Geometry();
+      geometry.vertices.push(
+        new THREE.Vector3(0.502140, -0.531526, 1.399275),
+        new THREE.Vector3(-0.170026, -1.274032, 0.898707),
+        new THREE.Vector3(-1.169587, -0.797050, 0.705437),
+        new THREE.Vector3(-1.119838, 0.259841, 1.091923),
+        new THREE.Vector3(-0.086739, 0.419888, 1.517166),
+        new THREE.Vector3(-1.245122, 0.950206, 0.212802),
+        new THREE.Vector3(-1.373315, 0.321820, -0.713364),
+        new THREE.Vector3(-1.325870, -0.761671, -0.412016),
+        new THREE.Vector3(-0.420836, -1.217290, -0.906550),
+        new THREE.Vector3(0.289673, -1.540614, -0.096150),
+        new THREE.Vector3(1.244791, -0.954858, -0.214278),
+        new THREE.Vector3(1.374924, -0.328390, 0.712931),
+        new THREE.Vector3(1.325241, 0.758874, 0.412379),
+        new THREE.Vector3(0.421463, 1.214343, 0.906996),
+        new THREE.Vector3(-0.293520, 1.546498, 0.102379),
+        new THREE.Vector3(0.089848, -0.411995, -1.508556),
+        new THREE.Vector3(1.117947, -0.247690, -1.080819),
+        new THREE.Vector3(1.169909, 0.814122, -0.698138),
+        new THREE.Vector3(0.167657, 1.292536, -0.894314),
+        new THREE.Vector3(-0.498712, 0.538405, -1.387151),
+      );
+      const pentagons = [
+        [0, 1, 2, 3, 4],
+        [4, 3, 5, 14, 13],
+        [3, 2, 7, 6, 5],
+        [2, 1, 9, 8, 7],
+        [1, 0, 11, 10, 9],
+        [0, 4, 13, 12, 11],
+        [8, 9, 10, 16, 15],
+        [10, 11, 12, 17, 16],
+        [12, 13, 14, 18, 17],
+        [14, 5, 6, 19, 18],
+        [6, 7, 8, 15, 19],
+        [15, 16, 17, 18, 19],
+      ];
+      pentagons.forEach((pentagon) => {
+        geometry.faces.push(
+          new THREE.Face3(pentagon[0], pentagon[1], pentagon[3]),
+          new THREE.Face3(pentagon[1], pentagon[2], pentagon[3]),
+          new THREE.Face3(pentagon[3], pentagon[4], pentagon[0]),
+        );
+      });
+      const object = new THREE.Mesh(geometry, material);
+      object.position.set(0, 0, -5);
+
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 20);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(400, 400);
+      renderer.setClearColor(0x4d2c5b, 1);
+      document.body.appendChild(renderer.domElement);
+
+      const light = new THREE.PointLight(0xffffff, 1);
+      light.position.set(5, 5, 10);
+      const scene = new THREE.Scene();
+      scene.add(light);
+      scene.add(object);
+
+      renderer.render(scene, camera);
+
+      let angle = 0;
+      setInterval(() => {
+        object.rotation.set(angle, angle, angle);
+        renderer.render(scene, camera);
+        angle += 0.1;
+      }, 1000 / 24);
+    </script>
+  </body>
+</html>
